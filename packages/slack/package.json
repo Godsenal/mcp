@@ -1,0 +1,27 @@
+{
+  "name": "@thlee/slack-mcp",
+  "version": "0.0.2",
+  "description": "slack MCP Server",
+  "license": "MIT",
+  "author": "godsenal",
+  "type": "module",
+  "bin": {
+    "mcp-server-slack": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "npx tsx index.ts",
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "shx": "^0.3.4",
+    "typescript": "^5.6.2"
+  }
+}

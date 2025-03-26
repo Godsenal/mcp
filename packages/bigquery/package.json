@@ -1,0 +1,28 @@
+{
+  "name": "@thlee/bigquery-mcp",
+  "version": "0.0.5",
+  "description": "bigquery MCP Server",
+  "license": "MIT",
+  "author": "godsenal",
+  "type": "module",
+  "bin": {
+    "mcp-server-bigquery": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "npx tsx index.ts",
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.9.3",
+    "@modelcontextprotocol/sdk": "1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "shx": "^0.3.4",
+    "typescript": "^5.6.2"
+  }
+}
