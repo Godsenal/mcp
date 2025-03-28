@@ -1,7 +1,7 @@
 {
   "name": "@thlee/slack-mcp",
-  "version": "0.0.2",
-  "description": "slack MCP Server",
+  "version": "0.0.1",
+  "description": "Slack MCP Server",
   "license": "MIT",
   "author": "godsenal",
   "type": "module",
@@ -17,9 +17,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.0.1"
+    "@modelcontextprotocol/sdk": "1.0.1",
+    "@slack/web-api": "^6.11.2",
+    "express": "^4.21.2"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^22",
     "shx": "^0.3.4",
     "typescript": "^5.6.2"

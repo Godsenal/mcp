@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import express from "express";
 import {
   CallToolRequest,
   CallToolRequestSchema,
@@ -190,11 +192,32 @@ async function main() {
     };
   });
 
-  const transport = new StdioServerTransport();
-  console.error("Connecting server to transport...");
-  await server.connect(transport);
+  if (process.env.TRANSPORT === "stdio") {
+    const transport = new StdioServerTransport();
+    console.error("[stdio] Connecting server to transport...");
+    await server.connect(transport);
 
-  console.error("BigQuery MCP Server running on stdio");
+    console.error("[stdio] MCP Server running on stdio");
+  } else {
+    let transport: SSEServerTransport | null = null;
+
+    const app = express();
+
+    app.get("/sse", (req, res) => {
+      transport = new SSEServerTransport("/messages", res);
+      server.connect(transport);
+    });
+
+    app.post("/messages", (req, res) => {
+      if (transport) {
+        transport.handlePostMessage(req, res);
+      }
+    });
+
+    app.listen(3000, () => {
+      console.log("[sse] MCP Server running on http://localhost:3000");
+    });
+  }
 }
 
 main().catch((error) => {

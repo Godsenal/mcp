@@ -10,6 +10,8 @@ RUN --mount=type=cache,target=/root/.npm npm install
 
 RUN --mount=type=cache,target=/root/.npm-production npm ci --ignore-scripts --omit-dev
 
+RUN npm run build
+
 FROM node:22-alpine AS release
 
 COPY --from=builder /app/dist /app/dist
@@ -20,6 +22,6 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-RUN npm ci --ignore-scripts --omit-dev
+EXPOSE 3000
 
 ENTRYPOINT ["node", "dist/index.js"]
