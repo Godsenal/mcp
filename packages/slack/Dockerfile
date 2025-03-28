@@ -22,6 +22,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
+RUN npm ci --ignore-scripts --omit-dev
 EXPOSE 3000
 
 ENTRYPOINT ["node", "dist/index.js"]
