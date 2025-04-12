@@ -42,7 +42,10 @@ class FetchClient {
   async fetchUrl(url: string): Promise<string> {
     try {
       const response = await fetch(url, {
-        headers: { "User-Agent": this.userAgent },
+        headers: {
+          "User-Agent": this.userAgent,
+          "Content-Type": "text/plain; charset=UTF-8",
+        },
         redirect: "follow",
       });
 
