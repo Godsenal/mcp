@@ -6,9 +6,6 @@ import {
   CallToolRequest,
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  GetPromptRequest,
-  GetPromptRequestSchema,
-  ListPromptsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import express, { Request, Response } from "express";
@@ -131,70 +128,6 @@ async function main() {
       tools: [fetchTool],
     };
   });
-
-  server.setRequestHandler(ListPromptsRequestSchema, async () => {
-    console.error("Received ListPromptsRequest");
-    return {
-      prompts: [
-        {
-          name: "fetch",
-          description: "Fetch content from a URL",
-          arguments: [
-            {
-              name: "url",
-              description: "URL to fetch",
-              required: true,
-            },
-          ],
-        },
-      ],
-    };
-  });
-
-  server.setRequestHandler(
-    GetPromptRequestSchema,
-    async (request: GetPromptRequest) => {
-      console.error("Received GetPromptRequest:", request);
-      try {
-        if (!request.params.arguments?.url) {
-          throw new Error("URL is required");
-        }
-
-        const url = request.params.arguments.url;
-        try {
-          const content = await fetchClient.fetchUrl(url);
-          return {
-            description: `Contents of ${url}`,
-            messages: [
-              {
-                role: "user",
-                content: {
-                  type: "text",
-                  text: content,
-                },
-              },
-            ],
-          };
-        } catch (error) {
-          return {
-            description: `Failed to fetch ${url}`,
-            messages: [
-              {
-                role: "user",
-                content: {
-                  type: "text",
-                  text: error instanceof Error ? error.message : String(error),
-                },
-              },
-            ],
-          };
-        }
-      } catch (error) {
-        console.error("Error handling prompt:", error);
-        throw error;
-      }
-    }
-  );
 
   if (process.argv.includes("--sse")) {
     let transport: SSEServerTransport | null = null;
