@@ -192,13 +192,7 @@ async function main() {
     };
   });
 
-  if (process.env.TRANSPORT === "stdio") {
-    const transport = new StdioServerTransport();
-    console.error("[stdio] Connecting server to transport...");
-    await server.connect(transport);
-
-    console.error("[stdio] MCP Server running on stdio");
-  } else {
+  if (process.argv.includes("--sse")) {
     let transport: SSEServerTransport | null = null;
 
     const app = express();
@@ -217,6 +211,12 @@ async function main() {
     app.listen(3000, () => {
       console.log("[sse] MCP Server running on http://localhost:3000");
     });
+  } else {
+    const transport = new StdioServerTransport();
+    console.error("[stdio] Connecting server to transport...");
+    await server.connect(transport);
+
+    console.error("[stdio] MCP Server running on stdio");
   }
 }
 
