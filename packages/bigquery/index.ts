@@ -98,20 +98,34 @@ class BigQueryClient {
     });
   }
 
-  async executeQuery(query: string): Promise<any> {
-    const options = {
-      query,
-    };
-
+  async executeQuery(query: string, signal?: AbortSignal): Promise<any> {
     try {
-      const [job] = await this.client.createQueryJob(options);
-      const [rows] = await job.getQueryResults();
-      return {
-        success: true,
-        rows,
-        jobId: job.id,
+      const [job] = await this.client.createQueryJob({ query });
+
+      // Cancel BigQuery job if client aborts the request
+      const onAbort = () => {
+        job.cancel().catch((err) =>
+          console.error("Failed to cancel BigQuery job:", err)
+        );
       };
+
+      if (signal?.aborted) {
+        await job.cancel();
+        return { success: false, error: "Request was cancelled", jobId: job.id };
+      }
+
+      signal?.addEventListener("abort", onAbort, { once: true });
+
+      try {
+        const [rows] = await job.getQueryResults();
+        return { success: true, rows, jobId: job.id };
+      } finally {
+        signal?.removeEventListener("abort", onAbort);
+      }
     } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return { success: false, error: "Request was cancelled" };
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -234,7 +248,7 @@ async function main() {
 
   server.setRequestHandler(
     CallToolRequestSchema,
-    async (request: CallToolRequest) => {
+    async (request: CallToolRequest, extra) => {
       console.error("Received CallToolRequest:", request);
       try {
         if (!request.params.arguments) {
@@ -248,7 +262,7 @@ async function main() {
             if (!args.query) {
               throw new Error("Missing required argument: query");
             }
-            const response = await bigqueryClient.executeQuery(args.query);
+            const response = await bigqueryClient.executeQuery(args.query, extra.signal);
             return {
               content: [{ type: "text", text: JSON.stringify(response) }],
             };
