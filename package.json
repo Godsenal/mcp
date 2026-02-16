@@ -1,5 +1,5 @@
 {
-  "name": "thlee-mcp-packages",
+  "name": "godsenal7-mcp-packages",
   "private": true,
   "version": "1.0.0",
   "description": "Collection of MCP packages",
@@ -10,7 +10,9 @@
     "watch": "npm run watch --workspaces",
     "publish-all": "npm publish --workspaces --access public",
     "link-all": "npm link --workspaces",
-    "changeset": "npx @changesets/cli"
+    "changeset": "npx @changesets/cli",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "workspaces": [
     "packages/*"

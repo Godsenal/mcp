@@ -19,6 +19,14 @@ interface DryRunQueryArgs {
   query: string;
 }
 
+interface GetJobArgs {
+  jobId: string;
+}
+
+interface CancelJobArgs {
+  jobId: string;
+}
+
 // Tool definitions
 const executeQueryTool: Tool = {
   name: "bigquery_execute_query",
@@ -47,6 +55,37 @@ const dryRunQueryTool: Tool = {
       },
     },
     required: ["query"],
+  },
+};
+
+const getJobTool: Tool = {
+  name: "bigquery_get_job",
+  description:
+    "Get detailed information about a BigQuery job including status, statistics, and configuration",
+  inputSchema: {
+    type: "object",
+    properties: {
+      jobId: {
+        type: "string",
+        description: "The BigQuery job ID to look up",
+      },
+    },
+    required: ["jobId"],
+  },
+};
+
+const cancelJobTool: Tool = {
+  name: "bigquery_cancel_job",
+  description: "Cancel a running BigQuery job",
+  inputSchema: {
+    type: "object",
+    properties: {
+      jobId: {
+        type: "string",
+        description: "The BigQuery job ID to cancel",
+      },
+    },
+    required: ["jobId"],
   },
 };
 
@@ -100,6 +139,66 @@ class BigQueryClient {
         bytesProcessed,
         costInUSD,
         jobId: job.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  async getJob(jobId: string): Promise<any> {
+    try {
+      const job = this.client.job(jobId);
+      const [metadata] = await job.getMetadata();
+
+      return {
+        success: true,
+        jobId: metadata.jobReference?.jobId,
+        status: {
+          state: metadata.status?.state,
+          errorResult: metadata.status?.errorResult,
+          errors: metadata.status?.errors,
+        },
+        statistics: {
+          creationTime: metadata.statistics?.creationTime,
+          startTime: metadata.statistics?.startTime,
+          endTime: metadata.statistics?.endTime,
+          totalBytesProcessed:
+            metadata.statistics?.query?.totalBytesProcessed,
+          totalBytesBilled: metadata.statistics?.query?.totalBytesBilled,
+          cacheHit: metadata.statistics?.query?.cacheHit,
+          queryPlan: metadata.statistics?.query?.queryPlan,
+        },
+        configuration: {
+          query: metadata.configuration?.query?.query,
+          destinationTable:
+            metadata.configuration?.query?.destinationTable,
+          useLegacySql: metadata.configuration?.query?.useLegacySql,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  async cancelJob(jobId: string): Promise<any> {
+    try {
+      const job = this.client.job(jobId);
+      await job.cancel();
+      const [metadata] = await job.getMetadata();
+
+      return {
+        success: true,
+        jobId: metadata.jobReference?.jobId,
+        status: {
+          state: metadata.status?.state,
+          errorResult: metadata.status?.errorResult,
+        },
       };
     } catch (error) {
       return {
@@ -166,6 +265,28 @@ async function main() {
             };
           }
 
+          case "bigquery_get_job": {
+            const args = request.params.arguments as unknown as GetJobArgs;
+            if (!args.jobId) {
+              throw new Error("Missing required argument: jobId");
+            }
+            const response = await bigqueryClient.getJob(args.jobId);
+            return {
+              content: [{ type: "text", text: JSON.stringify(response) }],
+            };
+          }
+
+          case "bigquery_cancel_job": {
+            const args = request.params.arguments as unknown as CancelJobArgs;
+            if (!args.jobId) {
+              throw new Error("Missing required argument: jobId");
+            }
+            const response = await bigqueryClient.cancelJob(args.jobId);
+            return {
+              content: [{ type: "text", text: JSON.stringify(response) }],
+            };
+          }
+
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
         }
@@ -188,7 +309,7 @@ async function main() {
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     console.error("Received ListToolsRequest");
     return {
-      tools: [executeQueryTool, dryRunQueryTool],
+      tools: [executeQueryTool, dryRunQueryTool, getJobTool, cancelJobTool],
     };
   });
 

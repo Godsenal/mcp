@@ -1,6 +1,6 @@
 {
-  "name": "@thlee/bigquery-mcp",
-  "version": "0.0.5",
+  "name": "@godsenal7/bigquery-mcp",
+  "version": "0.0.1",
   "description": "bigquery MCP Server",
   "license": "MIT",
   "author": "godsenal",

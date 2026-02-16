@@ -15,9 +15,9 @@ async function createPackage() {
   try {
     // Get package name
     const packageName = await question(
-      "Enter the package name (without @thlee/ prefix): "
+      "Enter the package name (without @godsenal7/ prefix): "
     );
-    const fullPackageName = `@thlee/${packageName}-mcp`;
+    const fullPackageName = `@godsenal7/${packageName}-mcp`;
     const packageDir = path.join("packages", packageName);
 
     // Create package directory

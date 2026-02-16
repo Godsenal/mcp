@@ -1,10 +1,10 @@
-# thlee MCP Packages
+# godsenal7 MCP Packages
 
-This repository contains a collection of Model Context Protocol (MCP) packages managed by thlee organization.
+This repository contains a collection of Model Context Protocol (MCP) packages managed by godsenal7 organization.
 
 ## Packages
 
-All packages are published under the `@thlee` scope with the naming convention `@thlee/{name}-mcp`.
+All packages are published under the `@godsenal7` scope with the naming convention `@godsenal7/{name}-mcp`.
 
 ## Development
 

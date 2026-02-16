@@ -8,6 +8,7 @@ build/
 # IDE and editor files
 .idea/
 .vscode/
+.omc/
 *.swp
 *.swo
 
