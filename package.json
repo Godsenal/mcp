@@ -18,6 +18,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@types/node": "^20.11.24",
     "typescript": "^5.3.3"
   }
