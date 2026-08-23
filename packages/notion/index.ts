@@ -677,6 +677,13 @@ const queryDatabaseTool: Tool = {
       sorts: {
         type: "array",
         description: "Sort conditions",
+        items: {
+          type: "object",
+          properties: {
+            property: { type: "string" },
+            direction: { type: "string" },
+          },
+        },
       },
       start_cursor: {
         type: "string",
